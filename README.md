@@ -1,5 +1,9 @@
 # AI-Assisted CTI Extractor
 
+[![Repo](https://img.shields.io/badge/github-conglambaomat%2Fai--cti--extractor-181717?logo=github)](https://github.com/conglambaomat/ai-cti-extractor)
+[![Status](https://img.shields.io/badge/status-Phase%200%20foundation-yellow)](./docs/project-roadmap.md)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+
 > Convert unstructured threat reports (PDF, HTML, blog posts) into grounded, standardized **STIX 2.1** intelligence with **MITRE ATT&CK** mappings, ready to push into **OpenCTI**, **MISP**, **TAXII**, and SIEM detection pipelines. Every claim traces back to exact evidence spans in the source report. **English-only corpus** — public CTI reports are universally published in English.
 
 **Status:** Phase 0 — Foundation setup. No application code yet. See [`docs/project-roadmap.md`](./docs/project-roadmap.md).
@@ -96,7 +100,8 @@ Export: OpenCTI / MISP / TAXII 2.1 / Sigma / Splunk
 
 ```bash
 # 1. Clone + enter
-git clone <this-repo> && cd ai-cti-extractor
+git clone git@github.com:conglambaomat/ai-cti-extractor.git
+cd ai-cti-extractor
 
 # 2. Configure environment
 cp .env.example .env

@@ -36,6 +36,18 @@ This is a thesis-grade build. Production trustworthiness > demo flashiness.
 
 Do NOT introduce new top-level dependencies without justification in the plan.
 
+## Resource constraints (affects planning + scope)
+
+- **Solo dev, 12+ month thesis + production runway.** Plan for sustainability, not sprint pace.
+- **No local GPU.** Do NOT plan fine-tuning of encoders. Use pretrained checkpoints (SecureBERT-base, CyBERT) zero-shot/few-shot. If a task requires learning, prefer LLM-with-constrained-schema over fine-tuning.
+- **LLM API budget is small.** Every LLM call must be cached. Cache key: `(prompt_hash, retrieved_hash, model, model_version)`. TTL ≥ 24h. Re-runs MUST hit cache, not API. Default LLM provider = the cheapest viable (currently GPT-4o-mini or local Ollama Qwen2.5 7-14B).
+- **No 5-language multilingual.** Phase 3 multilingual scope reduced to English + Vietnamese only. Vietnamese is a niche contribution given limited Vietnamese CTI resources.
+- **Single export target until proven.** Phase 1-2 ships OpenCTI export only. MISP + TAXII deferred until OpenCTI round-trip is solid.
+- **Custom gold benchmark: 30-50 reports, not 200.** Double-annotated 50%. Krippendorff α reported. This is enough to demonstrate methodology rigor.
+- **Cut from roadmap (move to "future work"):** Sigstore audit chain, ExCyTIn-Bench + CTI-REALM evals (keep AttackSeqBench only), Neo4j (use Postgres recursive CTE), ChromaDB (use pgvector — one less service).
+
+When `planner` agent generates phase plans, it MUST respect these constraints. If a phase requires GPU or large LLM spend, propose an alternative path or flag as out-of-scope.
+
 ## Repo layout (target)
 
 ```

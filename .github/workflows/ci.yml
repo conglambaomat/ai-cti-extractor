@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # 18:00 UTC = 01:00 ICT — off-peak nightly run
+    - cron: "0 18 * * *"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint + types + security + unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.11.14"
+          enable-cache: true
+
+      - name: Set up Python 3.11
+        run: uv python install 3.11
+
+      - name: Sync deps
+        run: uv sync --frozen
+
+      - name: Ruff lint
+        run: uv run ruff check app tests
+
+      - name: Ruff format check
+        run: uv run ruff format --check app tests
+
+      - name: Mypy --strict
+        run: uv run mypy app
+
+      - name: Bandit
+        run: uv run bandit -r app
+
+      - name: pip-audit
+        run: uv run pip-audit
+        continue-on-error: false
+
+      - name: Pytest (excluding integration)
+        run: uv run pytest -m "not integration_opencti and not integration"
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: ignore
+
+  integration-opencti:
+    name: OpenCTI round-trip integration
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'integration') ||
+      github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.11.14"
+          enable-cache: true
+
+      - name: Set up Python 3.11
+        run: uv python install 3.11
+
+      - name: Sync deps
+        run: uv sync --frozen
+
+      - name: Bring up Phase 1 stack (Postgres + Redis + MinIO)
+        run: docker compose -f docker/docker-compose.yml up -d --wait
+
+      - name: Bring up OpenCTI dev stack
+        run: docker compose -f docker/opencti/docker-compose.opencti.yml up -d --wait
+
+      - name: Setup OpenCTI token
+        run: bash scripts/setup-opencti-token.sh
+
+      - name: Run integration_opencti tests
+        run: uv run pytest -m integration_opencti
+
+      - name: Dump OpenCTI logs on failure
+        if: failure()
+        run: docker compose -f docker/opencti/docker-compose.opencti.yml logs --tail=200

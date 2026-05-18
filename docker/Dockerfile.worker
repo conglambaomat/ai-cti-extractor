@@ -1,0 +1,46 @@
+# syntax=docker/dockerfile:1.7
+# RQ worker image — same base as Dockerfile.app, plus Tesseract for OCR.
+
+FROM python:3.11-slim AS builder
+
+ENV PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1
+
+RUN pip install --no-cache-dir uv==0.11.14
+
+WORKDIR /build
+COPY pyproject.toml uv.lock README.md ./
+COPY app ./app
+
+RUN uv sync --frozen --no-dev
+
+# ----- Runtime stage -----
+FROM python:3.11-slim AS runtime
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/app/.venv/bin:$PATH" \
+    TESSDATA_PREFIX="/usr/share/tesseract-ocr/5/tessdata"
+
+# Worker OS deps: parsers + OCR (English only per project scope)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      libjpeg62-turbo \
+      libpng16-16 \
+      libxml2 \
+      libxslt1.1 \
+      tesseract-ocr \
+      tesseract-ocr-eng \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd --system --create-home --shell /bin/false cti
+
+WORKDIR /app
+COPY --from=builder --chown=cti:cti /build/.venv ./.venv
+COPY --chown=cti:cti app ./app
+COPY --chown=cti:cti pyproject.toml README.md ./
+
+USER cti
+
+CMD ["python", "-m", "app.jobs.worker"]

@@ -106,6 +106,15 @@
             "command": "node .claude/hooks/privacy-block.cjs"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/cost-guard.cjs"
+          }
+        ]
       }
     ],
     "Stop": [

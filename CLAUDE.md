@@ -50,6 +50,79 @@ Do NOT introduce new top-level dependencies without justification in the plan.
 
 When `planner` agent generates phase plans, it MUST respect these constraints. If a phase requires GPU or large LLM spend, propose an alternative path or flag as out-of-scope.
 
+## Autonomous Mode Operating Procedure
+
+**This project runs unattended for long periods.** Follow this procedure when no human is available to answer in real time.
+
+### Decision policy
+- When facing a design decision (e.g., RQ vs Arq, pgvector vs ChromaDB, prompt v1 vs v2):
+  1. Pick the option that aligns with `CLAUDE.md` Resource constraints + `docs/project-roadmap.md` Phase scope.
+  2. If still ambiguous, pick the **simpler** option (KISS principle).
+  3. **Document the decision** in `docs/journals/{date}-{slug}-decision.md` with: alternatives considered, why this option, what would trigger reconsideration.
+  4. Continue. Do not block waiting for human approval.
+- Defaults if all else equal:
+  - Job queue: **RQ** (simplest)
+  - Vector store: **pgvector** (fewer services)
+  - LLM provider: **OpenAI gpt-4o-mini** (cheapest viable for cached judge calls)
+  - Embeddings: **BGE-base-en-v1.5** local
+  - Test runner: **pytest**
+  - Lock file: **uv** (faster, modern)
+  - Linter: **ruff**, type checker: **mypy --strict**
+
+### Failure recovery policy
+- On test failure / build failure / type error:
+  1. **Retry up to 3 times** with progressively different approaches:
+     - Attempt 1: re-read error, fix obvious mistake, retry.
+     - Attempt 2: spawn `debugger` agent for root cause analysis, apply fix.
+     - Attempt 3: spawn `brainstormer` agent, propose 2-3 alternative implementations, pick best, retry.
+  2. If still failing after 3 attempts:
+     - Stash the work-in-progress branch (`git stash push -u -m "wip-pause-{timestamp}"`).
+     - Write a **pause report** to `plans/reports/PAUSED-{date}-{slug}.md` with: what was being attempted, what failed, what was tried, what's blocked.
+     - Move on to next independent task if the plan has parallel-safe phases.
+     - If no parallel work available, halt and write `plans/reports/HALTED-{date}-{slug}.md`.
+- On LLM API error (rate limit, network, 5xx):
+  - Backoff exponentially (1s, 4s, 16s) up to 3 retries.
+  - On persistent failure, switch to local Ollama Qwen2.5 7B if configured. Document fallback in journal.
+- On cost circuit breaker hit (`scripts/cost-guard.cjs` blocks): halt LLM calls, finish non-LLM work, write `plans/reports/COST-CAP-HIT-{date}.md`.
+- On `simplify-gate` block: run `code-simplifier` agent on changed files, then retry the action.
+- Never `--no-verify` to skip git hooks.
+
+### Git policy (autonomous)
+- Branch per phase: `feat/phase-{NN}-{slug}`.
+- Commit at every meaningful step (passing test, completed feature unit). Don't bundle.
+- Push every commit (auto-push allowed under `permissions.allow` in `.claude/settings.local.json`).
+- Open a PR to `main` when a phase completes all its acceptance criteria.
+- Never force-push. Never push directly to `main` (PR-only).
+- Never commit if `pytest` is failing on the changed files.
+
+### Work selection (when self-deciding what to do next)
+1. Read `plans/<active-plan>/plan.md` — find the next unblocked phase.
+2. Check phase file's "File Ownership" — confirm no overlap with concurrent work.
+3. If multiple phases are ready, pick the lowest-numbered unblocked one.
+4. After finishing a phase, run `/ck:code-review` against the phase's diff before moving on.
+5. After every 3 phases complete, run `/ck:docs` to update `docs/codebase-summary.md`.
+
+### When to PAUSE and notify (cannot self-decide)
+Write a pause file `plans/reports/PAUSED-{date}-{slug}.md` and halt for these:
+- All retry attempts exhausted on the same task.
+- Cost circuit breaker hit threshold.
+- An external API key is missing (LLM, OpenCTI, MISP, Context7) and required for the task.
+- A dataset acquisition needs human action (academic license form, email confirmation).
+- The work would touch `app/core/security.py` in a way that affects auth or audit-log integrity (security-critical changes need human review).
+- A migration would alter existing analyst-edited data (data integrity).
+- Any operation in the `deny` list of `.claude/settings.local.json` is required.
+
+### Logging requirements (autonomous)
+- Every phase completion writes a journal entry: `docs/journals/{date}-{slug}-phase-{NN}-complete.md`.
+- Every retry writes to the journal noting attempt number, what changed, outcome.
+- LLM cost is tracked in `.claude/.cost-ledger.jsonl` (one line per call, cumulative total).
+- Decision documents go in `docs/journals/{date}-{slug}-decision.md`.
+
+### Token-budget discipline (autonomous)
+- Subagents have 200K context max. Don't dump full files into prompts; use grep/scout.
+- For long-running phases, run `/ck:docs` periodically to keep `codebase-summary.md` fresh — this prevents agents from re-reading large files.
+- Cache LLM responses by `(prompt_hash, retrieved_hash, model)` for ≥ 24h.
+
 ## Repo layout (target)
 
 ```

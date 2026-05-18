@@ -55,6 +55,7 @@ When `planner` agent generates phase plans, it MUST respect these constraints. I
 **This project runs unattended for long periods.** Follow this procedure when no human is available to answer in real time.
 
 ### Decision policy
+- **Never use `AskUserQuestion`.** Make the call yourself using CLAUDE.md Resource constraints + `docs/project-roadmap.md` Phase scope as the source of truth. The only acceptable pause path is the "When to PAUSE and notify" list below — anything else, decide and continue.
 - When facing a design decision (e.g., RQ vs Arq, pgvector vs ChromaDB, prompt v1 vs v2):
   1. Pick the option that aligns with `CLAUDE.md` Resource constraints + `docs/project-roadmap.md` Phase scope.
   2. If still ambiguous, pick the **simpler** option (KISS principle).

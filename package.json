@@ -1,0 +1,9 @@
+{
+  "name": "opencti-vibe-coding",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal Claude Code workspace based on ClaudeKit Engineer kit.",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

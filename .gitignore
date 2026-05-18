@@ -1,0 +1,95 @@
+# ===== Secrets =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cer
+*.pfx
+secrets/
+credentials/
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+
+# ===== Node (only if frontend tooling added) =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ===== Editors / OS =====
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Project data (do not commit large stores) =====
+data/postgres/
+data/elasticsearch/
+data/chroma/
+data/cache/
+data/uploads/
+data/raw_reports/
+
+# Model weights
+models/cache/
+models/checkpoints/
+*.bin
+*.safetensors
+*.ckpt
+*.onnx
+
+# Logs / scratch
+logs/
+*.log
+notebooks/scratch/
+repomix-output.*
+
+# ===== Claude Code (project-local state) =====
+.claude/.mcp.json
+.claude/.env
+.claude/session-state/
+.claude/hooks/.logs/
+.claude/skills/.venv/
+.claude/settings.local.json
+.claude/agent-memory/
+
+# Allow tracking the templates
+!.claude/.mcp.json.example
+!.claude/.env.example
+
+# Plans output (keep templates if any)
+plans/**/*
+!plans/templates/*
+
+# ===== STIX / pipeline outputs =====
+exports/
+out/
+tmp/
+screenshots/

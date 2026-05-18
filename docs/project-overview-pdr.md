@@ -9,13 +9,15 @@
 
 ## 1. Vision
 
-Convert noisy unstructured threat reports (PDF, HTML, blog posts, screenshots, multilingual prose) into **grounded, standardized, queryable cyber threat intelligence** that security teams actually use. Produce STIX 2.1 bundles, MITRE ATT&CK mappings, and SOC-ready detection artifacts — every claim traceable back to exact text spans in the source report.
+Convert noisy unstructured threat reports (PDF, HTML, blog posts, screenshots) into **grounded, standardized, queryable cyber threat intelligence** that security teams actually use. Produce STIX 2.1 bundles, MITRE ATT&CK mappings, and SOC-ready detection artifacts — every claim traceable back to exact text spans in the source report.
+
+**Language scope: English-only.** Public CTI reports (Mandiant, CrowdStrike, Microsoft, Talos, Unit 42, ESET, Kaspersky) all publish in English regardless of vendor origin. Multilingual support is explicitly out of scope; non-English inputs are rejected at ingestion, not translated.
 
 ## 2. Problem statement
 
 Current CTI workflows fail at three points:
 
-1. **Translation gap.** Threat reports are prose, but downstream tools (SIEM, SOAR, OpenCTI, MISP) need structured data. Manual translation is slow and inconsistent.
+1. **Translation gap.** Threat reports are dense prose, but downstream tools (SIEM, SOAR, OpenCTI, MISP) need structured data. Manual conversion is slow and inconsistent.
 2. **Behavioral abstraction gap.** IoC extraction is solved; mapping behavior to ATT&CK at technique + sub-technique level remains noisy. Best supervised baselines hit ~72% F1 on 188 techniques (CTI-to-MITRE); multi-report aggregation pushes this to 78.6% F1.
 3. **Hallucination + faithfulness gap.** LLM-only extractors produce plausible-looking output without evidence anchoring, making review expensive and trust low.
 
@@ -62,7 +64,7 @@ Phase 2-3 expansion: `malware`, `tool`, `threat-actor`, `intrusion-set`, `campai
 |---|---|---|
 | FR-1 | Ingest PDF/HTML/TXT/MD/URL | Parser preserves page, section, char offsets |
 | FR-2 | OCR image-only pages | Tesseract fallback when text layer absent |
-| FR-3 | Language detect + translation cache | Non-English reports normalized; original retained |
+| FR-3 | Language gate at ingestion | Non-English reports rejected with clear error; English passes through |
 | FR-4 | Deterministic IOC extraction | Per-type strict-match precision ≥ 0.98 |
 | FR-5 | NER on CTI entities | Span-level F1 ≥ 0.85 on AnnoCTR holdout |
 | FR-6 | Relation + event extraction | Labeled relation F1 ≥ 0.70 on AZERG holdout |
@@ -154,7 +156,7 @@ See [`system-architecture.md`](./system-architecture.md) for full diagram.
 | Dataset license restrictions on commercial reports | Medium | Medium | Vendor-disjoint splits; document provenance per report |
 | OpenCTI/MISP API drift | Medium | Low | Pinned client versions; integration test suite |
 | Compute cost for fine-tuning encoders | Medium | Medium | Distill / use existing SecureBERT checkpoints first |
-| Multilingual quality | High | Medium | Translation cache; report orig + translated; manual eval per language |
+| Non-English report rejection edge case | Low | Low | langdetect threshold + manual override flag for false positives on technical English with heavy non-Latin code samples |
 | Evidence-span misalignment after OCR | Medium | High | Layout-aware OCR; offset reconciliation tests |
 
 ## 11. Out-of-scope but adjacent (potential future work)

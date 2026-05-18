@@ -155,10 +155,10 @@
 
 ---
 
-## Phase 3 — RAG + LLM Judge + KG + Multilingual
+## Phase 3 — RAG + LLM Judge + KG
 
 **Window:** ~6-8 weeks (target: 2026-10-15)
-**Goal:** LLM-grounded reranking layer; knowledge graph for entity resolution; multilingual ingestion.
+**Goal:** LLM-grounded reranking layer; knowledge graph for entity resolution. (Multilingual cut from scope — public CTI corpus is English-only.)
 
 ### Deliverables
 
@@ -184,10 +184,9 @@
 - Alias matching: exact, normalized (lowercase, defanged), embedding-similarity, ATT&CK group/software cross-ref
 - KG queries via Postgres recursive CTE (or Neo4j embedded if pipeline complexity requires — decision in P3 spike)
 
-**Multilingual**
-- `app/ingestion/language.py` — langdetect + translation cache
-- Translation provider: local Argos by default, Google API optional
-- Original + translated both stored; evidence spans always against original
+**Language gate (not translation)**
+- `app/ingestion/language.py` — langdetect rejects non-English at ingestion with clear error
+- Manual override flag for false-positive on technical English with heavy non-Latin code samples
 
 **TAXII export**
 - `app/stix/exporters.py::TAXIIExporter`
@@ -211,14 +210,14 @@
 | Abstention precision (when judge abstains, was abstention correct?) | ≥ 0.80 | 30-claim audit |
 | ATT&CK technique F1 (encoder + LLM rerank vs encoder only) | improvement ≥ +0.05 absolute F1 | WAVE-27K holdout |
 | Multi-report ATT&CK aggregation gain | ≥ +0.20 F1 vs single-report (literature ~0.26 expected) | clustered report set |
-| Multilingual support (ES, FR, RU, ZH, AR) | NER F1 within −0.10 of EN | per-language eval set |
+| Non-English rejection precision | ≥ 0.99 (very few false negatives, false positives manually overridable) | mixed-language ingestion test set |
 | Analyst acceptance rate | ≥ 0.70 | Phase 3 review queue |
 | End-to-end latency (10-page PDF + LLM) | ≤ 90s p95 | benchmark fixture |
 
 ### Phase 3 risks
 - LLM cost runaway — enforce token budget per pipeline run, hard cap; cache aggressively
 - Prompt injection from report content — wrap LLM context with system-level constraint, never let report text replace instructions
-- Translation quality on technical CTI content — manual eval per language; flag low-quality translations for review queue priority
+- ~~Translation quality~~ — out of scope, English-only corpus
 - KG growth + alias collisions — track alias confidence; demote low-confidence aliases; analyst can fork canonical entities
 
 ---
@@ -321,7 +320,7 @@
 | Elasticsearch client | P2 | lexical search |
 | ChromaDB client | P3 | vector retrieval |
 | LLM SDKs (provider-agnostic) | P3 | judge layer |
-| Argos / translation provider | P3 | multilingual |
+| ~~Argos / translation provider~~ | — | (out of scope) |
 | sigma-cli | P4 | detection-rule validation |
 
 ## Decision log placeholders

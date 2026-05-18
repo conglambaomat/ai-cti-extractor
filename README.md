@@ -1,6 +1,6 @@
 # AI-Assisted CTI Extractor
 
-> Convert unstructured threat reports (PDF, HTML, blog posts, multilingual prose) into grounded, standardized **STIX 2.1** intelligence with **MITRE ATT&CK** mappings, ready to push into **OpenCTI**, **MISP**, **TAXII**, and SIEM detection pipelines. Every claim traces back to exact evidence spans in the source report.
+> Convert unstructured threat reports (PDF, HTML, blog posts) into grounded, standardized **STIX 2.1** intelligence with **MITRE ATT&CK** mappings, ready to push into **OpenCTI**, **MISP**, **TAXII**, and SIEM detection pipelines. Every claim traces back to exact evidence spans in the source report. **English-only corpus** — public CTI reports are universally published in English.
 
 **Status:** Phase 0 — Foundation setup. No application code yet. See [`docs/project-roadmap.md`](./docs/project-roadmap.md).
 
@@ -8,7 +8,7 @@
 
 ## Why this exists
 
-Security teams need machine-readable intelligence, but threat reports come as prose. Manual translation is slow and inconsistent. LLM-only extractors hallucinate. Pure rule systems miss semantics.
+Security teams need machine-readable intelligence, but threat reports come as dense prose. Manual conversion is slow and inconsistent. LLM-only extractors hallucinate. Pure rule systems miss semantics.
 
 This project takes a **hybrid neuro-symbolic** approach:
 - **Rules first** for exact observables (IPs, domains, hashes, CVEs).
@@ -78,7 +78,7 @@ Export: OpenCTI / MISP / TAXII 2.1 / Sigma / Splunk
 | **0 — Foundation** | now | Repo + docs + Claude Code workflow |
 | **1 — Ingestion + IOC + minimal STIX** | ~3-4 weeks | End-to-end pipeline: PDF → valid STIX bundle (`report`, `indicator`, `relationship`) |
 | **2 — NER + RE + ATT&CK + review UI** | ~6-8 weeks | Encoder-based extraction; ATT&CK mapping; analyst review queue; OpenCTI/MISP export |
-| **3 — RAG + LLM judge + KG + multilingual** | ~6-8 weeks | LLM-grounded reranking; knowledge graph; multilingual ingestion; TAXII export |
+| **3 — RAG + LLM judge + KG** | ~6-8 weeks | LLM-grounded reranking; knowledge graph; TAXII export |
 | **4 — Downstream SOC artifacts** | ~4-6 weeks | Sigma/Splunk rule generation; custom gold benchmark release; analyst acceptance study |
 
 ## Quick start

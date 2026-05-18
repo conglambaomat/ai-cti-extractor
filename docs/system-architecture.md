@@ -47,7 +47,7 @@ Design choice rationale: rules are precise but semantically narrow; LLMs are fle
 | `txt_parser.py` | Plain text passthrough with paragraph segmentation. |
 | `url_fetcher.py` | URL → HTML; respect robots.txt; user-agent identifies tool. |
 | `ocr.py` | Tesseract; only when page has no text layer. Output offsets reconciled to page geometry. |
-| `language.py` | Language detect (langdetect/fasttext) + translation cache (Argos / Google). Original always retained. |
+| `language.py` | Language gate. langdetect/fasttext detects non-English; rejects with clear error. NO translation. English-only corpus is intentional scope. |
 | `chunking.py` | Semantic chunking with section/page/offset preservation. Configurable chunk size (default 512 tokens, overlap 64). |
 
 ### 2.2 Extraction layer (`app/extractors/`)
@@ -271,7 +271,7 @@ feedback_examples      (id, source_review_id, claim_type, payload jsonb, accepte
 | **Elasticsearch** | Lexical search over chunks, IOC strings, analyst comments. Triage queue index. |
 | **ChromaDB** | Vector retrieval. 4 typed collections (see §2.3). |
 | **MinIO/S3** | Raw report files, OCR output, original attachments |
-| **Redis** | Job queue + transient caches (translation, embedding) |
+| **Redis** | Job queue + transient caches (embedding, LLM response cache) |
 
 ## 8. Module dependency graph
 
@@ -351,7 +351,7 @@ extractors ──> candidates ──┐
 |---|---|---|---|---|
 | Ingest PDF/HTML/TXT/MD | ✓ | | | |
 | OCR | | ✓ | | |
-| Translation | | | ✓ | |
+| Translation | | | — — | (out of scope: English-only corpus) |
 | Regex IOC | ✓ | | | |
 | NER + RE + Event | | ✓ | | |
 | ATT&CK mapping | | ✓ | | |
@@ -382,5 +382,5 @@ extractors ──> candidates ──┐
 1. RQ vs Celery vs Arq — pending Phase 1 spike.
 2. ChromaDB vs Qdrant vs pgvector — ops simplicity vs scale ceiling.
 3. Custom KG store: Neo4j embedded or graph queries on PostgreSQL with `recursive` CTEs?
-4. Translation provider: local Argos (offline, slower) vs Google API (fast, ToS).
+4. ~~Translation provider~~ — out of scope. Public CTI reports are English-only.
 5. Whether `audit_logs` hash-chain should integrate with Sigstore / transparency log for thesis-grade tamper evidence.

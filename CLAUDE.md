@@ -15,7 +15,7 @@ This is a thesis-grade build. Production trustworthiness > demo flashiness.
 ## Non-negotiable principles
 
 1. **Evidence grounding.** Every extracted fact (IOC, entity, relation, ATT&CK mapping, STIX object) MUST carry one or more evidence spans referencing exact `chunk_id`, `char_start`, `char_end`. A claim without evidence is invalid by definition. Reject it; do not paper over it.
-2. **Hybrid task routing.** Rules first for exact observables (IPv4/IPv6, domains, hashes, CVEs, paths, registry keys, YARA/Sigma blocks). Fine-tuned encoders for repetitive structured tasks (NER, RE, event extraction, ATT&CK candidate generation). LLMs only for cross-sentence linking, ATT&CK reranking with retrieval, STIX property completion, multilingual normalization. **Never use an LLM where a regex or encoder is sufficient.**
+2. **Hybrid task routing.** Rules first for exact observables (IPv4/IPv6, domains, hashes, CVEs, paths, registry keys, YARA/Sigma blocks). Fine-tuned encoders for repetitive structured tasks (NER, RE, event extraction, ATT&CK candidate generation). LLMs only for cross-sentence linking, ATT&CK reranking with retrieval, and STIX property completion from grounded evidence. **Never use an LLM where a regex or encoder is sufficient.**
 3. **Abstention is a valid output.** When confidence is low, emit `null` / `unsupported` / route to human review. Do not fabricate.
 4. **Boring strictness.** Every operational claim carries evidence. Pydantic schema check before STIX serialization. Ontology consistency before export. Audit log every model run, prompt, retrieval, edit. Immutable provenance.
 5. **STIX 2.1 subset first.** Day 1 objects: `report`, `indicator`, `relationship`. Then `malware`, `tool`, `threat-actor`, `intrusion-set`, `campaign`, `vulnerability`, `attack-pattern`, `infrastructure`, `identity`, `observed-data`. Do NOT attempt the full object universe upfront.
@@ -35,6 +35,8 @@ This is a thesis-grade build. Production trustworthiness > demo flashiness.
 - **Quality:** ruff, mypy --strict, bandit, pip-audit
 
 Do NOT introduce new top-level dependencies without justification in the plan.
+
+**Spec note.** `docs/AI-assisted_CTI_extractor.md` is the original research-backed spec; it includes literature mentions of multilingual CTI work for completeness. **The project scope is English-only** — defer to this CLAUDE.md and `docs/project-roadmap.md` over the spec when there is a conflict.
 
 ## Resource constraints (affects planning + scope)
 

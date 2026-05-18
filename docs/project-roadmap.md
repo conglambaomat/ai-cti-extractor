@@ -329,7 +329,7 @@ These need decisions early in their phase. Capture in journal entries when made.
 
 - **P1**: RQ vs Celery vs Arq for job queue
 - **P1**: `uv` vs `poetry` for lock file
-- **P2**: Argos local vs Google translate API
+- **P2**: ~~Argos local vs Google translate API~~ — out of scope (English-only)
 - **P2**: pgvector vs ChromaDB vs Qdrant for vector store (decision feeds P3)
 - **P3**: Default LLM provider (OpenAI / Anthropic / local) per cost-quality benchmark
 - **P3**: Neo4j embedded vs Postgres recursive CTE for KG queries

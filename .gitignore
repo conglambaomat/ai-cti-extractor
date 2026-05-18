@@ -84,9 +84,19 @@ repomix-output.*
 !.claude/.mcp.json.example
 !.claude/.env.example
 
-# Plans output (keep templates if any)
+# Plans — track plan/phase markdown but ignore runtime artifacts
 plans/**/*
-!plans/templates/*
+!plans/templates/
+!plans/templates/**
+!plans/*/
+!plans/*/plan.md
+!plans/*/phase-*.md
+!plans/*/research/
+!plans/*/research/*.md
+!plans/*/reports/
+!plans/*/reports/*.md
+!plans/reports/
+!plans/reports/*.md
 
 # ===== STIX / pipeline outputs =====
 exports/

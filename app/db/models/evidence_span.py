@@ -11,6 +11,12 @@ from app.db.models.base import Base, TimestampMixin, UuidMixin
 class EvidenceSpan(UuidMixin, TimestampMixin, Base):
     __tablename__ = "evidence_spans"
 
+    # Deterministic schema-side id from app.schemas.evidence (e-{sha256[:16+]}).
+    # Distinct from the UUID PK so DB FKs stay UUID while extractor output keys
+    # remain content-addressable across re-runs.
+    evidence_id: Mapped[str] = mapped_column(
+        String(96), unique=True, nullable=False, index=True
+    )
     chunk_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("chunks.id", ondelete="CASCADE"), nullable=False, index=True
     )

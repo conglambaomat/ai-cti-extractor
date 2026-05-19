@@ -90,6 +90,11 @@ class Settings(BaseSettings):
     # --- Cost cap (matches .claude/hooks/cost-guard.cjs) ---
     CK_LLM_COST_CAP_USD: float = 90.0
 
+    # --- API runtime ---
+    DEBUG: bool = False
+    TRUST_PROXY_HEADERS: bool = False
+    MAX_CONCURRENT_PIPELINES: int = Field(default=3, ge=1, le=32)
+
 
 settings = Settings()
 """Process-wide settings singleton."""

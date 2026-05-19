@@ -25,3 +25,9 @@ coverage
 # Allow reading these files
 !.env
 !.env.*
+!.venv/Scripts/python.exe
+!.venv/Scripts/pytest.exe
+!.venv/Scripts/uv.exe
+!.venv/Scripts/ruff.exe
+!.venv/Scripts/mypy.exe
+!.venv/Scripts/bandit.exe

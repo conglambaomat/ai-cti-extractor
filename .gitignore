@@ -56,6 +56,11 @@ data/chroma/
 data/cache/
 data/uploads/
 data/raw_reports/
+data/storage/
+data/raw/
+data/cti.db
+data/cti.db-shm
+data/cti.db-wal
 
 # Model weights
 models/cache/

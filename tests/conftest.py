@@ -32,9 +32,9 @@ def pytest_configure(config: pytest.Config) -> None:
     """Set safe defaults for tests that read env-driven config."""
     os.environ.setdefault("APP_ENV", "development")
     os.environ.setdefault("LOG_LEVEL", "WARNING")
-    # Avoid touching real DB/Redis/S3 by default; integration tests opt in
+    # Default to in-memory SQLite for unit tests; integration tests opt in
     # by overriding these in their own fixtures.
-    os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://cti:cti@localhost:5432/cti_test")
+    os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
     os.environ.setdefault("REDIS_URL", "redis://localhost:6379/15")
     os.environ.setdefault("S3_ENDPOINT", "http://localhost:9000")
     os.environ.setdefault("S3_BUCKET", "cti-test")

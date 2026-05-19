@@ -131,7 +131,33 @@ class StixValidateResponse(BaseModel):
     issues: list[StixValidationIssue]
 
 
+# ---------------------------------------------------------------------------
+# ATT&CK candidates (Phase 09 — LLM judge)
+# ---------------------------------------------------------------------------
+
+
+class AttackCandidateResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    chunk_id: str
+    technique_id: str
+    name: str
+    quote: str
+    confidence: float
+
+
+class AttackMappingResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    document_id: str
+    chunks_considered: int
+    candidates: list[AttackCandidateResponse]
+    cache_hits: int
+    input_tokens: int
+    output_tokens: int
+
+
 __all__ = [
+    "AttackCandidateResponse",
+    "AttackMappingResponse",
     "ChunkResponse",
     "DocumentResponse",
     "ExtractTriggerResponse",

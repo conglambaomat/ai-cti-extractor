@@ -72,6 +72,11 @@ class Settings(BaseSettings):
     LLM_MAX_TOKENS: int = 4096
     OPENAI_API_KEY: SecretStr | None = None
     ANTHROPIC_API_KEY: SecretStr | None = None
+    ANTHROPIC_AUTH_TOKEN: SecretStr | None = None
+    ANTHROPIC_BASE_URL: str | None = None
+    ANTHROPIC_DEFAULT_SONNET_MODEL: str = "kr/claude-sonnet-4.6"
+    ANTHROPIC_DEFAULT_OPUS_MODEL: str = "kr/claude-opus-4.7"
+    ANTHROPIC_DEFAULT_HAIKU_MODEL: str = "kr/claude-haiku-4.5"
     LOCAL_LLM_BASE_URL: str = "http://localhost:11434/v1"
     LOCAL_LLM_MODEL: str = "llama3.1:8b-instruct"
 
